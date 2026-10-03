@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="id"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Closingan Toko</title>
+<script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+<style>
+:root{font-family:Inter,system-ui,Arial,sans-serif;color:#172033;background:#f2f5fa}*{box-sizing:border-box}body{margin:0;padding:22px}.app{max-width:1050px;margin:auto}.head{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:18px}.head h1{margin:0;font-size:25px}.sub,.hint{color:#667085;font-size:13px}.card{background:#fff;border:1px solid #e4e8f0;border-radius:15px;padding:19px;margin:14px 0;box-shadow:0 5px 20px #17203308}.card h2{font-size:17px;margin:0 0 12px}.actions{display:flex;gap:9px;flex-wrap:wrap;align-items:center}.btn{border:0;border-radius:9px;padding:11px 15px;font-weight:650;cursor:pointer;background:#e9edf5;color:#172033}.btn.primary{background:#2458d3;color:#fff}.btn.green{background:#16834b;color:#fff}.btn:disabled{opacity:.5;cursor:wait}input,select{font:inherit;border:1px solid #d6dce7;border-radius:8px;padding:10px;width:100%;min-width:0}input[type=file]{max-width:100%;border:0;padding:8px 0}.preview{max-width:100%;max-height:280px;object-fit:contain;border-radius:8px;margin-top:12px}.status{margin:10px 0;font-size:13px;color:#475467}.bar{width:100%;height:10px}.tablebox{overflow:auto}table{width:100%;border-collapse:collapse;min-width:540px}th,td{padding:8px;border-bottom:1px solid #edf0f4;text-align:left;font-size:13px}th{background:#f8f9fb;color:#667085}td input{padding:8px}.fields{display:grid;grid-template-columns:repeat(auto-fit,minmax(165px,1fr));gap:12px}.field label{display:block;font-size:12px;color:#667085;margin-bottom:5px}.report{white-space:pre-wrap;overflow-wrap:anywhere;background:#f8f9fb;border:1px solid #edf0f4;border-radius:10px;padding:14px;font:13px/1.6 ui-monospace,Consolas,monospace;min-height:80px}.tag{font-size:12px;background:#eef3ff;color:#234eb5;border-radius:20px;padding:5px 9px}.warn{background:#fff7e8;border:1px solid #f5d89b;padding:10px;border-radius:9px;color:#7a4b00;font-size:13px}.hidden{display:none}@media(max-width:600px){
+ body{padding:10px}
+ .app{width:100%}
+ .head{align-items:flex-start;flex-direction:column;gap:7px;margin-bottom:12px}
+ .head h1{font-size:21px}
+ .card{padding:13px;margin:10px 0;border-radius:12px}
+ .card h2{font-size:16px}
+ .actions{gap:8px}
+ .actions .btn{flex:1;min-height:42px}
+ input,select{font-size:16px;padding:11px}
+ input[type=file]{font-size:14px}
+ .fields{grid-template-columns:1fr 1fr;gap:10px}
+ .field label{font-size:12px;line-height:1.35}
+ .tablebox{margin-left:-4px;margin-right:-4px;padding-bottom:5px;overflow-x:auto;-webkit-overflow-scrolling:touch}
+ table{min-width:510px}
+ th,td{padding:7px 6px;font-size:12px}
+ td input{font-size:14px;padding:9px;min-width:0}
+ td .btn{padding:9px 10px;min-height:38px}
+ .report{font-size:12px;line-height:1.55;padding:11px}
+ .preview{max-height:220px}
+}
+@media(max-width:380px){.fields{grid-template-columns:1fr}.actions .btn{flex:1 1 100%}}
+</style></head><body><main class="app">
+<header class="head"><div><h1>Closingan Toko</h1><div class="sub">Scan tabel transaksi dan susun laporan harian</div></div><span class="tag">Satu file HTML</span></header>
+<section class="card"><h2>1. Foto tabel transaksi</h2><p class="hint">Gunakan screenshot tabel yang utuh dan jelas. OCR berjalan di browser dan memerlukan internet saat pertama kali memuat library.</p>
+<div class="actions"><input id="file" type="file" accept="image/*"><button class="btn primary" id="scan">Scan foto</button></div><img id="preview" class="preview hidden"><div id="status" class="status">Belum ada foto dipindai.</div><progress id="progress" class="bar hidden" max="100" value="0"></progress>
+<div class="warn" style="margin-top:12px">Penting: OCR bukan jaminan 100% akurat. Selalu cocokkan jumlah item dan Qty dengan tabel sumber sebelum memakai laporan.</div><div class="hint" style="margin-top:9px">Di HP, buka halaman ini melalui tautan hosting. File yang dibuka langsung dari laptop tidak otomatis tersedia di HP, dan data tiap perangkat belum tersinkron otomatis.</div></section>
+<section class="card"><div class="actions" style="justify-content:space-between"><h2 style="margin:0">2. Periksa barang <span id="count" class="tag">0 item</span></h2><div class="actions"><button class="btn" id="add">+ Tambah</button><button class="btn" id="clear">Kosongkan</button></div></div>
+<div class="tablebox" style="margin-top:12px"><table><thead><tr><th>No</th><th>Nama barang</th><th style="width:110px">Qty</th><th style="width:80px">Aksi</th></tr></thead><tbody id="rows"></tbody></table></div>
+</section>
+<section class="card"><h2>3. Rincian closingan</h2><div class="fields">
+<div class="field"><label>Judul</label><input id="title" value="CLOSINGAN KROBOKAN"></div><div class="field"><label>Tanggal</label><input id="date" type="date"></div>
+<div class="field"><label>Total penjualan (isi manual)</label><input id="sales" placeholder="-"></div><div class="field"><label>Debit</label><input id="debit" placeholder="-"></div><div class="field"><label>QRIS Mandiri</label><input id="qris" placeholder="-"></div><div class="field"><label>Transfer</label><input id="transfer" placeholder="-"></div><div class="field"><label>Pengeluaran</label><input id="expense" placeholder="-"></div><div class="field"><label>Cash on hand</label><input id="cash" placeholder="-"></div>
+</div><div class="actions" style="margin-top:14px"><button class="btn primary" id="make">Buat laporan</button><button class="btn green" id="copy">Salin laporan</button></div><div id="report" class="report" style="margin-top:12px">Laporan akan muncul di sini.</div></section>
+</main><script>
+const $=id=>document.getElementById(id);let items=[],worker=null;
+const localDate=()=>{const d=new Date();return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`};$('date').value=localDate();
+function draw(){const body=$('rows');body.innerHTML='';items.forEach((it,i)=>{const tr=document.createElement('tr');const n=document.createElement('td');n.textContent=i+1;const nameTd=document.createElement('td'),qtyTd=document.createElement('td'),act=document.createElement('td');const name=document.createElement('input');name.value=it.name;name.setAttribute('aria-label','Nama barang');name.oninput=e=>it.name=e.target.value;const qty=document.createElement('input');qty.type='number';qty.min='0';qty.step='1';qty.value=it.qty;qty.setAttribute('aria-label','Qty');qty.oninput=e=>it.qty=e.target.value;const del=document.createElement('button');del.className='btn';del.textContent='Hapus';del.onclick=()=>{items.splice(i,1);draw()};nameTd.append(name);qtyTd.append(qty);act.append(del);tr.append(n,nameTd,qtyTd,act);body.append(tr)});$('count').textContent=items.length+' item'}
+$('add').onclick=()=>{items.push({name:'',qty:1});draw()};$('clear').onclick=()=>{if(confirm('Hapus semua item?')){items=[];draw()}};
+$('file').onchange=()=>{const f=$('file').files[0];if(!f)return;$('preview').src=URL.createObjectURL(f);$('preview').classList.remove('hidden')};
+function preprocess(file){return new Promise((resolve,reject)=>{const img=new Image();img.onload=()=>{const c=document.createElement('canvas');const scale=Math.min(3,Math.max(1.7,2200/img.width));c.width=Math.round(img.width*scale);c.height=Math.round(img.height*scale);const ctx=c.getContext('2d');ctx.fillStyle='#fff';ctx.fillRect(0,0,c.width,c.height);ctx.filter='grayscale(1) contrast(1.25)';ctx.drawImage(img,0,0,c.width,c.height);c.toBlob(b=>b?resolve(b):reject(Error('Gagal memproses gambar')),'image/png')};img.onerror=reject;img.src=URL.createObjectURL(file)})}
+function parseWords(words,imgW,imgH){
+ // Group OCR words by vertical position, then use the last small integer on each row as Qty.
+ const valid=words.filter(w=>w.text&&w.confidence>18).map(w=>({...w,cy:(w.bbox.y0+w.bbox.y1)/2,cx:(w.bbox.x0+w.bbox.x1)/2}));
+ valid.sort((a,b)=>a.cy-b.cy);
+ const lines=[];for(const w of valid){let line=lines.find(l=>Math.abs(l.cy-w.cy)<Math.max(13,(w.bbox.y1-w.bbox.y0)*.65));if(!line){line={cy:w.cy,words:[]};lines.push(line)}line.words.push(w);line.cy=line.words.reduce((s,x)=>s+x.cy,0)/line.words.length}
+ const out=[];
+ for(const l of lines){l.words.sort((a,b)=>a.bbox.x0-b.bbox.x0);const text=l.words.map(w=>w.text).join(' ').replace(/\s+/g,' ').trim();if(/grand|total|harga|barang|kode|qty|sisa|stock|diskon/i.test(text))continue;
+   // Prefer numeric first-column row number; exclude the total row and header.
+   const first=l.words[0];const row=Number(first.text.replace(/[^\d]/g,''));if(!Number.isInteger(row)||row<1||row>80)continue;
+   // Qty column typically sits in the rightmost quarter of this transaction table.
+   let right=l.words.filter(w=>w.cx>imgW*.72&&/^\d{1,3}$/.test(w.text));
+   let qtyWord=right.length?right[right.length-1]:null;
+   if(!qtyWord){const nums=l.words.filter(w=>/^\d{1,3}$/.test(w.text));qtyWord=nums.length?nums[nums.length-1]:null}
+   if(!qtyWord)continue;
+   // Name is the text between code and price; use word positions to ignore numeric cells.
+   const nameWords=l.words.filter(w=>w.cx>imgW*.16&&w.cx<imgW*.77&&!/^\d[\d.,]*$/.test(w.text));
+   let name=nameWords.map(w=>w.text).join(' ').replace(/\s+/g,' ').trim();
+   if(!name)continue;
+   out.push({row,name,qty:Number(qtyWord.text)});
+ }
+ const unique=new Map();out.forEach(x=>{if(!unique.has(x.row))unique.set(x.row,x)});return [...unique.values()].sort((a,b)=>a.row-b.row).map(({name,qty})=>({name,qty}));
+}
+$('scan').onclick=async()=>{const file=$('file').files[0];if(!file){$('status').textContent='Pilih foto dulu.';return}if(!window.Tesseract){$('status').textContent='Library OCR belum termuat. Periksa internet, lalu refresh halaman.';return}
+ $('scan').disabled=true;$('progress').classList.remove('hidden');$('progress').value=0;$('status').textContent='Memperjelas foto…';
+ try{const img=await preprocess(file);$('status').textContent='Membaca tabel…';const result=await Tesseract.recognize(img,'eng',{logger:m=>{if(m.status)$('status').textContent=m.status;if(m.progress)$('progress').value=Math.round(m.progress*100)}});const w=result.data.words||[];const parsed=parseWords(w,result.data.imageSize?.width||2200,result.data.imageSize?.height||3000);
+ if(parsed.length){items=parsed;draw();$('status').textContent=`Selesai: ${parsed.length} baris terdeteksi. Cocokkan dengan tabel sumber.`}else{$('status').textContent='Belum ada baris yang bisa dikenali. Coba crop hanya area tabel atau input item manual.'}
+ }catch(e){$('status').textContent='Scan gagal: '+(e.message||e)}finally{$('scan').disabled=false}};
+function dateFmt(v){if(!v)return'';const [y,m,d]=v.split('-');return `${d}/${m}/${y}`}
+function build(){const list=items.filter(x=>x.name.trim()).map(x=>`•${x.name.trim()}(${x.qty||0})`).join('\n');const val=id=>$(id).value.trim()||'-';const t=`${val('title')}\n${dateFmt($('date').value)}\n\n${list}\n\nTOTAL PENJUALAN = ${val('sales')}\nDEBIT = ${val('debit')}\nQRIS MANDIRI = ${val('qris')}\nTRANSFER = ${val('transfer')}\nPENGELUARAN = ${val('expense')}\nCASH ON HAND = ${val('cash')}\n\n😇 - ASTUNGKARA RAHAYU - 😇`;$('report').textContent=t;return t}
+$('make').onclick=build;$('copy').onclick=async()=>{const t=build();try{await navigator.clipboard.writeText(t);$('copy').textContent='Tersalin ✓';setTimeout(()=>$('copy').textContent='Salin laporan',1500)}catch(e){$('status').textContent='Clipboard tidak tersedia; salin teks laporan secara manual.'}};
+draw();
+</script></body></html>
